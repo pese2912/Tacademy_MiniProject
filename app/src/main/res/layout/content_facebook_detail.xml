@@ -9,14 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.tacademy.miniproject.tstore.TStoreDetailActivity"
-    tools:showIn="@layout/activity_tstore_detail">
-    <WebView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/webView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+    tools:context="com.example.tacademy.miniproject.facebook.FacebookDetailActivity"
+    tools:showIn="@layout/activity_facebook_detail">
 
 </RelativeLayout>
