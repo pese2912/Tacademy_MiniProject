@@ -7,12 +7,11 @@ import android.widget.TextView;
 import com.example.tacademy.miniproject.data.TStoreCategory;
 
 
-/**
- * Created by dongja94 on 2016-05-09.
- */
+
 public class CategoryViewHolder extends RecyclerView.ViewHolder {
     TextView nameView;
     TStoreCategory category;
+
     public interface OnItemClickListener {
         public void onItemClick(View view, TStoreCategory category);
     }

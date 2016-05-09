@@ -32,6 +32,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder> {
         this.items.addAll(items);
         notifyDataSetChanged();
     }
+
     CategoryViewHolder.OnItemClickListener mListener;
     public void setOnItemClickListener(CategoryViewHolder.OnItemClickListener listener) {
         mListener = listener;

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.tacademy.miniproject.R;
 import com.example.tacademy.miniproject.data.TStoreProduct;
 
@@ -49,6 +50,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     public void setProduct(TStoreProduct product) {
         this.product = product;
 
+        Glide.with(thumbView.getContext()).load(product.getThumbnailUrl()).into(thumbView); //이미지 채우기
 
         nameView.setText(product.getName());
         descriptionView.setText(product.getDescription());
