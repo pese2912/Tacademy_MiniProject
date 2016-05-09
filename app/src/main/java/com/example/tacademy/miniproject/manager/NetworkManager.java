@@ -5,6 +5,7 @@ import android.net.NetworkRequest;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import com.example.tacademy.miniproject.MyApplication;
 import com.example.tacademy.miniproject.data.TStoreCategory;
@@ -16,6 +17,7 @@ import com.google.gson.internal.Streams;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.URLEncoder;
 import java.util.List;
@@ -143,6 +145,8 @@ public class NetworkManager {
                     mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS,result));
 
 
+                }else{
+                    throw new IOException(response.message());
                 }
 
             }
@@ -182,11 +186,70 @@ public class NetworkManager {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     TStoreCategoryProductResult data = gson.fromJson(response.body().charStream(), TStoreCategoryProductResult.class);
-                    result.result = data.tstore;
-                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                    if(data!= null) {
+                        result.result = data.tstore;
+                        mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                    }
+
+                    Log.i("result",data.toString());
+                }else{
+                    throw new IOException(response.message());
                 }
             }
         });
+
+        return request;
+    }
+
+
+
+
+    private static final String TSTORE_SEARCH_PRODUCT_URL = TSTORE_SERVER + "/tstore/products?count=%s&order=%s&page=%s&searchKeyword=%s&version=1";
+
+
+
+    public Request getTStoreSearchProductList(Object tag, int count, String order,int page,String keyword,
+                                                OnResultListener<TStoreCategoryProduct> listener) {
+        String url = null;
+        try {
+            url = String.format(TSTORE_SEARCH_PRODUCT_URL, count, order, page, URLEncoder.encode(keyword,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Accept","application/json")
+                .header("appKey","ec449f14-3190-30de-9143-75e1be5e7521")
+                .build();
+
+        final NetworkResult<TStoreCategoryProduct> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    TStoreCategoryProductResult data = gson.fromJson(response.body().charStream(), TStoreCategoryProductResult.class);
+                    if(data!= null) {
+                        result.result = data.tstore;
+                        mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                    }
+
+                    Log.i("result",data.toString());
+                }else{
+                    throw new IOException(response.message());
+                }
+            }
+        });
+
         return request;
     }
 

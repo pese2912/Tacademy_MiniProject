@@ -5,9 +5,26 @@
     tools:context="com.example.tacademy.miniproject.tstore.TStoreSearchFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="검색"
+        android:id="@+id/btn_search"
+        android:layout_gravity="right|top" />
+
+    <EditText
+        android:layout_width="283dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_input"
+        android:layout_gravity="left|top" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_list"
+        android:layout_width="match_parent"
+        android:layout_height="409dp"
+        android:layout_gravity="center_horizontal|bottom">
+
+    </android.support.v7.widget.RecyclerView>
 </FrameLayout>

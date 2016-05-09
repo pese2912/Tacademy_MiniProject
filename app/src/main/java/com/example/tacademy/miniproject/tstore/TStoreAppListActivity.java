@@ -68,6 +68,7 @@ public class TStoreAppListActivity extends AppCompatActivity {
     }
 
     private void setData() {
+
         NetworkManager.getInstance().getTStoreCategoryProductList(this, code, 1, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
             @Override
             public void onSuccess(Request request, TStoreCategoryProduct result) {
@@ -81,8 +82,6 @@ public class TStoreAppListActivity extends AppCompatActivity {
                 Toast.makeText(TStoreAppListActivity.this, "fail : " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
 }
