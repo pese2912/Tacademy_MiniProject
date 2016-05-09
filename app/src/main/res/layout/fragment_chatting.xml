@@ -4,29 +4,13 @@
     android:layout_height="match_parent"
     tools:context="com.example.tacademy.miniproject.chatting.ChattingFragment">
 
-    <android.support.v4.app.FragmentTabHost
-        android:id="@+id/tabhost"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+    <!-- TODO: Update blank fragment layout -->
 
-            <TabWidget
-                android:id="@+id/tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </TabWidget>
-            <FrameLayout
-                android:id="@+id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </FrameLayout>
-
-        </LinearLayout>
-    </android.support.v4.app.FragmentTabHost>
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Chatting"
+        android:id="@+id/textView5"
+        android:layout_gravity="center" />
 </FrameLayout>
