@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TabWidget;
+import android.widget.TextView;
 
 import com.example.tacademy.miniproject.R;
 
@@ -30,8 +32,21 @@ public class TStoreFragment extends Fragment {
         tabHost = (FragmentTabHost)view.findViewById(R.id.tabhost);
         tabHost.setup(getContext(), getChildFragmentManager(), android.R.id.tabcontent);
 
-        tabHost.addTab(tabHost.newTabSpec("category").setIndicator(getString(R.string.tstore_tab_category_title)), TStoreCategoryFragment.class, null); //카테고리 탭
-        tabHost.addTab(tabHost.newTabSpec("search").setIndicator(getString(R.string.tstore_tab_search_title)), TStoreSearchFragment.class, null); // 검색 탭
+        TabWidget tabWidget = (TabWidget)tabHost.findViewById(android.R.id.tabs);
+
+        View tabHeader = inflater.inflate(R.layout.tab_header, tabWidget,false);
+        TextView titleView = (TextView)tabHeader.findViewById(R.id.text_title);
+        titleView.setText(R.string.tstore_tab_category_title);
+        tabHost.addTab(tabHost.newTabSpec("category").setIndicator(tabHeader), TStoreCategoryFragment.class, null);
+        // tabHost.addTab(tabHost.newTabSpec("category").setIndicator(getString(R.string.tstore_tab_category_title)), TStoreCategoryFragment.class, null); //카테고리 탭
+
+
+         tabHeader = inflater.inflate(R.layout.tab_header, tabWidget,false);
+         titleView = (TextView)tabHeader.findViewById(R.id.text_title);
+        titleView.setText(R.string.tstore_tab_search_title);
+
+        tabHost.addTab(tabHost.newTabSpec("search").setIndicator(tabHeader), TStoreSearchFragment.class, null);
+        //tabHost.addTab(tabHost.newTabSpec("search").setIndicator(getString(R.string.tstore_tab_search_title)), TStoreSearchFragment.class, null); // 검색 탭
         return view;
     }
 
