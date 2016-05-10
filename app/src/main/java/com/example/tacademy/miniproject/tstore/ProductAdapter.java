@@ -23,6 +23,43 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
         notifyDataSetChanged();
     }
 
+    private int totalCount = 0;
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
+
+    private int lastPage = 0;
+
+    public int getLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(int lastPage) {
+        this.lastPage = lastPage;
+    }
+
+    private String keyword;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    public boolean isMore() {
+//        if (totalCount == 0) return false;
+//        if (totalCount > items.size()) return true;
+//        return false;
+        return totalCount == 0 ? false : (totalCount > items.size() ? true : false);
+    }
+
     public void add(TStoreProduct product) {
         items.add(product);
         notifyDataSetChanged();
@@ -43,41 +80,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_tstore_product, null);
         return new ProductViewHolder(view);
     }
-
-    private int totalCount= 0;
-    public int getTotalCount(){
-        return totalCount;
-    }
-
-    public int getLastPage() {
-        return lastPage;
-    }
-
-    public void setLastPage(int lastPage) {
-        this.lastPage = lastPage;
-    }
-
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-    }
-
-    private int lastPage= 0;
-
-
-    public boolean isMore(){
-        return totalCount == 0 ? false : (totalCount > items.size() ? true : false);
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    private String keyword;
-
 
     @Override
     public void onBindViewHolder(ProductViewHolder holder, int position) {

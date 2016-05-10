@@ -49,7 +49,8 @@ public class TStoreAppListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, TStoreProduct product) {
                 Intent intent = new Intent(TStoreAppListActivity.this, TStoreDetailActivity.class);
-                intent.setData(Uri.parse(product.getWebUrl()));
+//                intent.setData(Uri.parse(product.getTinyUrl()));
+                intent.putExtra(TStoreDetailActivity.EXTRA_PRODUCT_ID, product.getProductId());
                 startActivity(intent);
             }
         });
@@ -63,17 +64,13 @@ public class TStoreAppListActivity extends AppCompatActivity {
         if (id == android.R.id.home) {
             finish();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     private void setData() {
-
         NetworkManager.getInstance().getTStoreCategoryProductList(this, code, 1, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
-
             @Override
             public void onSuccess(Request request, TStoreCategoryProduct result) {
-
                 mAdapter.clear();
                 mAdapter.addAll(result.products.productList);
             }
@@ -83,6 +80,21 @@ public class TStoreAppListActivity extends AppCompatActivity {
                 Toast.makeText(TStoreAppListActivity.this, "fail : " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+//        for (int i = 0 ; i < 10 ; i++) {
+//            TStoreProduct p = new TStoreProduct();
+//            p.setCategoryPath(code);
+//            p.setCharge(0);
+//            p.setDescription("description " + i);
+//            p.setDetailDescription("detail " + i);
+//            p.setDownloadCount(i);
+//            p.setName("name " + i);
+//            p.setProductId("productid" + i);
+//            p.setScore(0.0f);
+//            p.setThumbnailUrl("url");
+//            p.setTinyUrl("url");
+//            p.setWebUrl("http://www.tstore.co.kr/userpoc/game/view?pid=0000699882");
+//            mAdapter.add(p);
+//        }
     }
 
 }

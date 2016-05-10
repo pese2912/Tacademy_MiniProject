@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.tacademy.miniproject.R;
 import com.example.tacademy.miniproject.data.TStoreCategory;
 import com.example.tacademy.miniproject.data.TStoreCategoryProduct;
+import com.example.tacademy.miniproject.data.TStoreProduct;
 import com.example.tacademy.miniproject.manager.NetworkManager;
 
 import java.io.IOException;
@@ -31,89 +32,104 @@ import okhttp3.Request;
  */
 public class TStoreSearchFragment extends Fragment {
 
-    RecyclerView listView;
-    EditText inputView;
-    ProductAdapter mAdapter;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mAdapter = new ProductAdapter();
-    }
 
     public TStoreSearchFragment() {
         // Required empty public constructor
     }
 
+    RecyclerView listView;
+    ProductAdapter mAdapter;
+    EditText keywordView;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAdapter = new ProductAdapter();
+        mAdapter.setOnItemClickListener(new ProductViewHolder.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, TStoreProduct product) {
+                Intent intent = new Intent(getContext(), TStoreDetailActivity.class);
+//                intent.setData(Uri.parse(product.getWebUrl()));
+                intent.putExtra(TStoreDetailActivity.EXTRA_PRODUCT_ID, product.getProductId());
+                startActivity(intent);
+            }
+        });
+    }
 
     LinearLayoutManager mLayoutManager;
-    Boolean isLast= false;
 
+    boolean isLast = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tstore_search, container, false);
-        inputView = (EditText)view.findViewById(R.id.edit_input);
-        Button btn = (Button)view.findViewById(R.id.btn_search);
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String keyword = inputView.getText().toString();
-                Toast.makeText(getContext(),keyword, Toast.LENGTH_SHORT).show();
-                setData(keyword);
-
-            }
-        });
-
         listView = (RecyclerView)view.findViewById(R.id.rv_list);
-        mAdapter = new ProductAdapter();
-        listView.setAdapter(mAdapter);
+      //  listView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getContext()).build());
 
+        listView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(getContext());
         listView.setLayoutManager(mLayoutManager);
-
         listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-
-                if(isLast && newState == RecyclerView.SCROLL_STATE_IDLE){
+                if (isLast && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     getMoreData();
                 }
-
             }
-
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int totalCount = mAdapter.getItemCount();
-                int lastVisibleItem = mLayoutManager.findLastVisibleItemPosition(); //마지막에 보이는 아이템의 인덱스
-                if (totalCount > 0 && lastVisibleItem >= totalCount - 1) { //맨끝에 도달
-
+                int lastVisibleItem = mLayoutManager.findLastVisibleItemPosition();
+                if (totalCount > 0 && lastVisibleItem >= totalCount - 1) {
                     isLast = true;
                 } else {
                     isLast = false;
                 }
             }
-
         });
+        keywordView = (EditText)view.findViewById(R.id.edit_keyword);
+        Button btn = (Button)view.findViewById(R.id.btn_search);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String keyword = keywordView.getText().toString();
+                if (!TextUtils.isEmpty(keyword)) {
+                    try {
+                        NetworkManager.getInstance().getTStoreSearchProductList(getContext(), keyword, 1, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
+                            @Override
+                            public void onSuccess(Request request, TStoreCategoryProduct result) {
+                                mAdapter.setKeyword(keyword);
+                                mAdapter.setLastPage(1);
+                                mAdapter.setTotalCount(result.totalCount);
+                                mAdapter.clear();
+                                mAdapter.addAll(result.products.productList);
+                            }
 
-
+                            @Override
+                            public void onFail(Request request, IOException exception) {
+                                Toast.makeText(getContext(), "fail : " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
         return view;
     }
-    boolean isMoreData = false;
 
-    private void getMoreData(){ //데이터 더보기
-        if(!isMoreData && mAdapter.isMore()){
+    boolean isMoreData = false;
+    private void getMoreData() {
+        if (!isMoreData && mAdapter.isMore()) {
             isMoreData = true;
-            final int page = mAdapter.getLastPage()+1; //페이지 증가
+            final int page = mAdapter.getLastPage() + 1;
             try {
-                NetworkManager.getInstance().getTStoreSearchProductList(this, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, page, mAdapter.getKeyword(), new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
+                NetworkManager.getInstance().getTStoreSearchProductList(getContext(), mAdapter.getKeyword(), page, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
                     @Override
                     public void onSuccess(Request request, TStoreCategoryProduct result) {
-
                         mAdapter.addAll(result.products.productList);
                         mAdapter.setLastPage(page);
                         isMoreData = false;
@@ -122,45 +138,13 @@ public class TStoreSearchFragment extends Fragment {
                     @Override
                     public void onFail(Request request, IOException exception) {
                         isMoreData = false;
-
                     }
                 });
-            }catch (Exception e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 isMoreData = false;
             }
-
         }
-    }
-
-
-    private void setData(final String keyword) {
-
-        //검색
-        if(!TextUtils.isEmpty(keyword)) {
-            try {
-
-                NetworkManager.getInstance().getTStoreSearchProductList(this, 10, NetworkManager.CATEGORY_PRODUCT_ORDER_R, 1, keyword, new NetworkManager.OnResultListener<TStoreCategoryProduct>() {
-                    @Override
-                    public void onSuccess(Request request, TStoreCategoryProduct result) {
-                        mAdapter.setKeyword(keyword);
-                        mAdapter.setLastPage(1);
-                        mAdapter.setTotalCount(result.totalCount);
-                        mAdapter.clear();
-                        mAdapter.addAll(result.products.productList);
-                    }
-
-                    @Override
-                    public void onFail(Request request, IOException exception) {
-                        Toast.makeText(getContext(), "fail : " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
     }
 
 }

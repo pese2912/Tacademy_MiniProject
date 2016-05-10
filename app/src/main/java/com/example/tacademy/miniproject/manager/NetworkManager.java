@@ -12,6 +12,8 @@ import com.example.tacademy.miniproject.data.TStoreCategory;
 import com.example.tacademy.miniproject.data.TStoreCategoryProduct;
 import com.example.tacademy.miniproject.data.TStoreCategoryProductResult;
 import com.example.tacademy.miniproject.data.TStoreCategoryResult;
+import com.example.tacademy.miniproject.data.TStoreProduct;
+import com.example.tacademy.miniproject.data.TStoreProductDetailResult;
 import com.google.gson.Gson;
 import com.google.gson.internal.Streams;
 
@@ -204,29 +206,24 @@ public class NetworkManager {
 
 
 
-    private static final String TSTORE_SEARCH_PRODUCT_URL = TSTORE_SERVER + "/tstore/products?count=%s&order=%s&page=%s&searchKeyword=%s&version=1";
+    private static final String TSTORE_SEARCH_PRODUCT_URL = TSTORE_SERVER + "/tstore/products?version=1&searchKeyword=%s&page=%s&count=%s&order=%s";
 
+    public static final String SEARCH_PRODUCT_ORDER_R = "R";
+    public static final String SEARCH_PRODUCT_ORDER_L = "L";
+    public static final String SEARCH_PRODUCT_ORDER_D = "D";
 
-
-    public Request getTStoreSearchProductList(Object tag, int count, String order,int page,String keyword,
-                                                OnResultListener<TStoreCategoryProduct> listener) {
-        String url = null;
-        try {
-            url = String.format(TSTORE_SEARCH_PRODUCT_URL, count, order, page, URLEncoder.encode(keyword,"UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
+    public Request getTStoreSearchProductList(Object tag, String keyword, int page, int count, String order,
+                                              OnResultListener<TStoreCategoryProduct> listener) throws UnsupportedEncodingException {
+        String url = String.format(TSTORE_SEARCH_PRODUCT_URL, URLEncoder.encode(keyword,"utf-8"), page, count, order);
         Request request = new Request.Builder()
                 .url(url)
                 .header("Accept","application/json")
-                .header("appKey","ec449f14-3190-30de-9143-75e1be5e7521")
+                .header("appKey","458a10f5-c07e-34b5-b2bd-4a891e024c2a")
                 .build();
 
         final NetworkResult<TStoreCategoryProduct> result = new NetworkResult<>();
         result.request = request;
         result.listener = listener;
-
         mClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -238,13 +235,50 @@ public class NetworkManager {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     TStoreCategoryProductResult data = gson.fromJson(response.body().charStream(), TStoreCategoryProductResult.class);
-                    if(data!= null) {
-                        result.result = data.tstore;
-                        mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
-                    }
+                    result.result = data.tstore;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+        return request;
+    }
 
-                    Log.i("result",data.toString());
-                }else{
+
+
+
+
+
+    private static final String TSTORE_DETAIL_PRODUCT = TSTORE_SERVER + "/tstore/products/%s?version=1";
+
+    public Request getTStoreDetailProduct(Object tag, String productId,
+                                          OnResultListener<TStoreProduct> listener) {
+        String url = String.format(TSTORE_DETAIL_PRODUCT, productId);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Accept","application/json")
+                .header("appKey","458a10f5-c07e-34b5-b2bd-4a891e024c2a")
+                .build();
+
+        final NetworkResult<TStoreProduct> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    TStoreProductDetailResult data = gson.fromJson(response.body().charStream(), TStoreProductDetailResult.class);
+                    data.tstore.product.makePreviewUrlList();
+                    result.result = data.tstore.product;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
                     throw new IOException(response.message());
                 }
             }
@@ -252,6 +286,4 @@ public class NetworkManager {
 
         return request;
     }
-
-
 }
