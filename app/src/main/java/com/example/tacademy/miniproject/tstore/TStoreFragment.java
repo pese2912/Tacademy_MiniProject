@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.example.tacademy.miniproject.R;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -21,7 +20,6 @@ public class TStoreFragment extends Fragment {
     public TStoreFragment() {
         // Required empty public constructor
     }
-
 
     FragmentTabHost tabHost;
 
@@ -39,7 +37,6 @@ public class TStoreFragment extends Fragment {
         titleView.setText(R.string.tstore_tab_category_title);
         tabHost.addTab(tabHost.newTabSpec("category").setIndicator(tabHeader), TStoreCategoryFragment.class, null);
         // tabHost.addTab(tabHost.newTabSpec("category").setIndicator(getString(R.string.tstore_tab_category_title)), TStoreCategoryFragment.class, null); //카테고리 탭
-
 
          tabHeader = inflater.inflate(R.layout.tab_header, tabWidget,false);
          titleView = (TextView)tabHeader.findViewById(R.id.text_title);

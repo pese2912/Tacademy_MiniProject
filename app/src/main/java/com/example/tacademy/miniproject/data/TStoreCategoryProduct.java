@@ -9,5 +9,6 @@ public class TStoreCategoryProduct {
     @SerializedName("category")
     public TStoreCategoryInfo info;
     public TStoreProducts products;
+    public int totalCount;
 
 }
