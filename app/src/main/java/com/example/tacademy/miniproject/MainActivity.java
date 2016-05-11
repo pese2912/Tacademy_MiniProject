@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity
 
                         }
             });
+
             String url = "https://graph.facebook.com/v2.6/me/picture?type=large&access_token="+token.getToken();
             Glide.with(MainActivity.this).load(url).into(profileView);
         }

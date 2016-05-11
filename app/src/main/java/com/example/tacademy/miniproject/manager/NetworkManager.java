@@ -10,6 +10,7 @@ import android.util.Log;
 import com.example.tacademy.miniproject.MyApplication;
 import com.example.tacademy.miniproject.data.FacebookFeed;
 import com.example.tacademy.miniproject.data.FacebookFeedResult;
+import com.example.tacademy.miniproject.data.FacebookIdResult;
 import com.example.tacademy.miniproject.data.MyInfo;
 import com.example.tacademy.miniproject.data.MyPictureResult;
 import com.example.tacademy.miniproject.data.TStoreCategory;
@@ -23,6 +24,7 @@ import com.google.gson.internal.Streams;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.URLEncoder;
@@ -32,9 +34,11 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -338,7 +342,7 @@ public class NetworkManager {
     private static final String FACEBOOK_MY_INFO = FACEBOOK_SERVER + "/v2.6/me?fields=id,name,email&access_token=%s";
 
     public Request getFacebookMyInfo(Object tag, String token,
-                                     OnResultListener<MyInfo> listener) {
+                                     OnResultListener<MyInfo> listener) { //내정보 가져오기
         String url = String.format(FACEBOOK_MY_INFO, token);
         Request request = new Request.Builder()
                 .url(url)
@@ -359,6 +363,53 @@ public class NetworkManager {
                 if (response.isSuccessful()) {
                     MyInfo data = gson.fromJson(response.body().charStream(), MyInfo.class);
                     result.result = data;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+        return request;
+    }
+
+
+
+    private static final String FACEBOOK_POST = FACEBOOK_SERVER + "/v2.6/me/feed?access_token=%s";
+
+    public Request uploadFacebookPost(Object tag, String token,String message, String caption, String link, String picture,String name, String description,
+                                     OnResultListener<String> listener) {//게시글 올리기
+        String url = String.format(FACEBOOK_POST, token);
+
+        RequestBody body = new FormBody.Builder() // 바디 설정
+                .add("message", message)
+                .add("link", link)
+                .add("caption", caption)
+                .add("picture", picture)
+                .add("name", name)
+                .add("description", description)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+
+        final NetworkResult<String> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    FacebookIdResult data = gson.fromJson(response.body().charStream(), FacebookIdResult.class);
+                    result.result = data.id;
                     mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
                 } else {
                     throw new IOException(response.message());
