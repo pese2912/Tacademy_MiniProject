@@ -24,7 +24,6 @@ import com.facebook.login.LoginResult;
 
 import java.io.IOException;
 import java.util.Arrays;
-
 import okhttp3.Request;
 
 public class FacebookWriteActivity extends AppCompatActivity {
@@ -116,6 +115,5 @@ public class FacebookWriteActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode,resultCode,data);
     }
-
 
 }

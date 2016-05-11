@@ -11,6 +11,7 @@ import com.example.tacademy.miniproject.MyApplication;
 import com.example.tacademy.miniproject.data.FacebookFeed;
 import com.example.tacademy.miniproject.data.FacebookFeedResult;
 import com.example.tacademy.miniproject.data.FacebookIdResult;
+import com.example.tacademy.miniproject.data.FacebookUploadResult;
 import com.example.tacademy.miniproject.data.MyInfo;
 import com.example.tacademy.miniproject.data.MyPictureResult;
 import com.example.tacademy.miniproject.data.TStoreCategory;
@@ -36,6 +37,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.JavaNetCookieJar;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -253,11 +256,6 @@ public class NetworkManager {
         return request;
     }
 
-
-
-
-
-
     private static final String TSTORE_DETAIL_PRODUCT = TSTORE_SERVER + "/tstore/products/%s?version=1";
 
     public Request getTStoreDetailProduct(Object tag, String productId,
@@ -337,8 +335,6 @@ public class NetworkManager {
 
         return request;
     }
-
-
     private static final String FACEBOOK_MY_INFO = FACEBOOK_SERVER + "/v2.6/me?fields=id,name,email&access_token=%s";
 
     public Request getFacebookMyInfo(Object tag, String token,
@@ -371,8 +367,6 @@ public class NetworkManager {
         });
         return request;
     }
-
-
 
     private static final String FACEBOOK_POST = FACEBOOK_SERVER + "/v2.6/me/feed?access_token=%s";
 
@@ -410,6 +404,53 @@ public class NetworkManager {
                 if (response.isSuccessful()) {
                     FacebookIdResult data = gson.fromJson(response.body().charStream(), FacebookIdResult.class);
                     result.result = data.id;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+        return request;
+    }
+
+
+
+    private static final String FACEBOOK_UPLOAD_PHOTO = FACEBOOK_SERVER + "/v2.6/me/photos?access_token=%s";
+
+    public Request uploadFacebookUpload(Object tag, String token,
+                                     String caption,
+                                     File file,
+                                     OnResultListener<FacebookUploadResult> listener) {
+        String url = String.format(FACEBOOK_UPLOAD_PHOTO, token);
+
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("caption", caption)
+                .addFormDataPart("picture", file.getName(),
+                        RequestBody.create(MediaType.parse("image/jpeg"), file))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        final NetworkResult<FacebookUploadResult> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String text = response.body().string();
+                    FacebookUploadResult data = gson.fromJson(text, FacebookUploadResult.class);
+                    result.result = data;
                     mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
                 } else {
                     throw new IOException(response.message());
