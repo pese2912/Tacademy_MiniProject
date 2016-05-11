@@ -8,6 +8,8 @@ import android.os.Message;
 import android.util.Log;
 
 import com.example.tacademy.miniproject.MyApplication;
+import com.example.tacademy.miniproject.data.FacebookFeed;
+import com.example.tacademy.miniproject.data.FacebookFeedResult;
 import com.example.tacademy.miniproject.data.TStoreCategory;
 import com.example.tacademy.miniproject.data.TStoreCategoryProduct;
 import com.example.tacademy.miniproject.data.TStoreCategoryProductResult;
@@ -279,6 +281,49 @@ public class NetworkManager {
                     result.result = data.tstore.product;
                     mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
                 } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+
+        return request;
+    }
+
+    private static final String FACEBOOK_SERVER =   "https://graph.facebook.com";
+    private static final String FACEBOOOK_FEEDS =   FACEBOOK_SERVER + "/v2.6/me/feed?access_token=%s";
+
+
+    public Request getFacebookFeeds(Object tag, String token,
+                                                OnResultListener<List<FacebookFeed>> listener) { //페이스북 내가 올린 글 가져오기
+        String url = String.format(FACEBOOOK_FEEDS, token);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        final NetworkResult<List<FacebookFeed>> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+
+                    FacebookFeedResult data = gson.fromJson(response.body().charStream(), FacebookFeedResult.class);
+                    data.convertStringToDate();
+                    if(data!= null) {
+                        result.result = data.feeds;
+                        mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                    }
+
+                    Log.i("result",data.toString());
+                }else{
                     throw new IOException(response.message());
                 }
             }
