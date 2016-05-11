@@ -10,6 +10,8 @@ import android.util.Log;
 import com.example.tacademy.miniproject.MyApplication;
 import com.example.tacademy.miniproject.data.FacebookFeed;
 import com.example.tacademy.miniproject.data.FacebookFeedResult;
+import com.example.tacademy.miniproject.data.MyInfo;
+import com.example.tacademy.miniproject.data.MyPictureResult;
 import com.example.tacademy.miniproject.data.TStoreCategory;
 import com.example.tacademy.miniproject.data.TStoreCategoryProduct;
 import com.example.tacademy.miniproject.data.TStoreCategoryProductResult;
@@ -329,6 +331,40 @@ public class NetworkManager {
             }
         });
 
+        return request;
+    }
+
+
+    private static final String FACEBOOK_MY_INFO = FACEBOOK_SERVER + "/v2.6/me?fields=id,name,email&access_token=%s";
+
+    public Request getFacebookMyInfo(Object tag, String token,
+                                     OnResultListener<MyInfo> listener) {
+        String url = String.format(FACEBOOK_MY_INFO, token);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        final NetworkResult<MyInfo> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    MyInfo data = gson.fromJson(response.body().charStream(), MyInfo.class);
+                    result.result = data;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
         return request;
     }
 }
