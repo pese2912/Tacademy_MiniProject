@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -119,12 +120,10 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.container, new TStoreFragment())
                     .commit();
 
-
         }else if(id == R.id.nav_facebook){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, new FacebookFragment())
                     .commit();
-
 
         }else if(id == R.id.nav_youtube){
             getSupportFragmentManager().beginTransaction()

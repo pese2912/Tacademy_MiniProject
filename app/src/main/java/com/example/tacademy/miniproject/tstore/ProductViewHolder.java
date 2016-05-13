@@ -47,6 +47,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
+
     public void setProduct(TStoreProduct product) {
         this.product = product;
 
