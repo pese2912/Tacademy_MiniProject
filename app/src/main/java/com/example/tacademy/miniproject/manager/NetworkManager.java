@@ -557,5 +557,47 @@ public class NetworkManager {
         return request;
     }
 
+    private static final String URL_FACEBOOK_SIGN_IN = MY_SERVER+ "/facebooksignin";
+
+    public Request facebookSignIn(Object tag,
+                          String accessToken,
+                          String registrationId,
+                          OnResultListener<MyResultUser> listener) {
+
+        RequestBody body = new FormBody.Builder()
+                .add("accessToken",accessToken)
+                .add("registrationId",registrationId)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(URL_FACEBOOK_SIGN_IN)
+                .post(body)
+                .build();
+
+        final NetworkResult<MyResultUser> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String text = response.body().string();
+                    MyResultUser data = gson.fromJson(text, MyResultUser.class);
+                    result.result = data;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+
+        return request;
+    }
 
 }

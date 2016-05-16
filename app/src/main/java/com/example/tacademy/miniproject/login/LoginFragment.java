@@ -154,6 +154,19 @@ public class LoginFragment extends Fragment {
             loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
+                    AccessToken token = AccessToken.getCurrentAccessToken();
+                    NetworkManager.getInstance().facebookSignIn(getContext(), token.getToken(), "", new NetworkManager.OnResultListener<MyResultUser>() {
+                        @Override
+                        public void onSuccess(Request request, MyResultUser result) {
+
+                        }
+
+                        @Override
+                        public void onFail(Request request, IOException exception) {
+
+                        }
+                    });
+
                     startActivity(new Intent(getContext(), MainActivity.class)); // 메인 화면으로 이동
                     getActivity().finish();
                 }
@@ -184,5 +197,4 @@ public class LoginFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode,resultCode,data);
     }
-
 }
