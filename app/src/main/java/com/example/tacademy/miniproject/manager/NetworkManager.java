@@ -20,8 +20,12 @@ import com.example.tacademy.miniproject.data.TStoreCategoryProductResult;
 import com.example.tacademy.miniproject.data.TStoreCategoryResult;
 import com.example.tacademy.miniproject.data.TStoreProduct;
 import com.example.tacademy.miniproject.data.TStoreProductDetailResult;
+import com.example.tacademy.miniproject.login.MyResult;
+import com.example.tacademy.miniproject.login.MyResultUser;
+import com.example.tacademy.miniproject.login.User;
 import com.google.gson.Gson;
 import com.google.gson.internal.Streams;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -459,4 +463,99 @@ public class NetworkManager {
         });
         return request;
     }
+
+
+    private static final String MY_SERVER ="https://miniproject-1313.appspot.com";
+    private static final String URL_SIGN_UP = MY_SERVER+ "/signup";
+
+    public Request signup(Object tag, String username,
+                                        String email,
+                                        String password,
+                                        String registrationId,
+                                        OnResultListener<MyResultUser> listener) {
+
+        RequestBody body = new FormBody.Builder()
+                .add("username",username)
+                .add("email",email)
+                .add("password",password)
+                .add("registrationId",registrationId)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(URL_SIGN_UP)
+                .post(body)
+                .build();
+
+        final NetworkResult<MyResultUser> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String text = response.body().string();
+
+                    MyResultUser data = gson.fromJson(text, MyResultUser.class);
+                    result.result = data;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+        return request;
+    }
+
+    private static final String URL_SIGN_IN = MY_SERVER+ "/signin";
+
+    public Request signin(Object tag,
+                          String email,
+                          String password,
+                          String registrationId,
+                          OnResultListener<MyResultUser> listener) {
+
+        RequestBody body = new FormBody.Builder()
+                .add("email",email)
+                .add("password",password)
+                .add("registrationId",registrationId)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(URL_SIGN_IN)
+                .post(body)
+                .build();
+
+        final NetworkResult<MyResultUser> result = new NetworkResult<>();
+        result.request = request;
+        result.listener = listener;
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result.exception = e;
+                mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_FAIL, result));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String text = response.body().string();
+                    MyResultUser data = gson.fromJson(text, MyResultUser.class);
+                    result.result = data;
+                    mHandler.sendMessage(mHandler.obtainMessage(MESSAGE_SUCCESS, result));
+                } else {
+                    throw new IOException(response.message());
+                }
+            }
+        });
+
+        return request;
+    }
+
+
 }

@@ -19,4 +19,11 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     }
+
+    public void changeSignUp(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new SignUpFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
 }

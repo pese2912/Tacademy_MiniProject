@@ -9,9 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.tacademy.miniproject.MainActivity;
 import com.example.tacademy.miniproject.R;
+import com.example.tacademy.miniproject.manager.NetworkManager;
+import com.example.tacademy.miniproject.manager.PropertyManager;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -20,7 +23,10 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
+import java.io.IOException;
 import java.util.Arrays;
+
+import okhttp3.Request;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,20 +34,23 @@ import java.util.Arrays;
 public class LoginFragment extends Fragment {
 
 
-    Button loginButton;
+    Button facebookLoginButton;
+
 
     public LoginFragment() {
         // Required empty public constructor
     }
 
 
+    EditText emailView, passwordView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_login, container, false);
-        loginButton = (Button)view.findViewById(R.id.btn_facebook_login);
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        facebookLoginButton = (Button)view.findViewById(R.id.btn_facebook_login);
+        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
@@ -54,6 +63,39 @@ public class LoginFragment extends Fragment {
                 siginUp();
             }
         });
+
+        emailView= (EditText)view.findViewById(R.id.edit_email);
+        passwordView = (EditText)view.findViewById(R.id.edit_password);
+
+        btn = (Button)view.findViewById(R.id.btn_login);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               final String email = emailView.getText().toString();
+                final String password = passwordView.getText().toString();
+
+                NetworkManager.getInstance().signin(getContext(), email, password, "", new NetworkManager.OnResultListener<MyResultUser>() {
+                    @Override
+                    public void onSuccess(Request request, MyResultUser result) {
+                        if(result.code == 1){
+                            PropertyManager.getInstance().setLogin(true);
+                            PropertyManager.getInstance().setUser(result.result);
+                            PropertyManager.getInstance().setEmail(email);
+                            PropertyManager.getInstance().setPassword(password);
+                            startActivity(new Intent(getContext(), MainActivity.class));
+                            getActivity().finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFail(Request request, IOException exception) {
+
+                    }
+                });
+            }
+        });
+
+
         return view;
     }
     CallbackManager callbackManager;
@@ -88,9 +130,9 @@ public class LoginFragment extends Fragment {
     private void updateButtonText(){ // 로그인여부에 따라 버튼 텍스트 변경
 
         if(isLogin()){
-            loginButton.setText("logout");
+            facebookLoginButton.setText("logout");
         }else{
-            loginButton.setText("login");
+            facebookLoginButton.setText("login");
         }
 
     }
@@ -134,7 +176,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void siginUp(){ // 회원가입
-
+        ((LoginActivity)getActivity()).changeSignUp();
     }
 
     @Override
