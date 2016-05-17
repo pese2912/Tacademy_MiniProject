@@ -63,4 +63,12 @@ public class PropertyManager {
         return user;
     }
 
+    private  static final String FIELD_REGISTRATION = "regid";
+    public void setRegistrationToken(String registrationToken) {
+        mEdirot.putString(FIELD_REGISTRATION, registrationToken);
+        mEdirot.commit();
+    }
+    public String getRegistrationToken() {
+        return mPrefs.getString(FIELD_REGISTRATION, "");
+    }
 }

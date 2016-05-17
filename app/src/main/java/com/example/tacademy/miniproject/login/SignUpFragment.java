@@ -49,7 +49,7 @@ public class SignUpFragment extends Fragment {
                final String email = emailView.getText().toString();
                 final String password = passwordView.getText().toString();
 
-                NetworkManager.getInstance().signup(getContext(), name, email, password, "", new NetworkManager.OnResultListener<MyResultUser>() {
+                NetworkManager.getInstance().signup(getContext(), name, email, password, PropertyManager.getInstance().getRegistrationToken(), new NetworkManager.OnResultListener<MyResultUser>() {
                     @Override
                     public void onSuccess(Request request, MyResultUser result) {
 

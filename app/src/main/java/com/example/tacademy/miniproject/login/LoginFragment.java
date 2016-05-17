@@ -74,7 +74,7 @@ public class LoginFragment extends Fragment {
                final String email = emailView.getText().toString();
                 final String password = passwordView.getText().toString();
 
-                NetworkManager.getInstance().signin(getContext(), email, password, "", new NetworkManager.OnResultListener<MyResultUser>() {
+                NetworkManager.getInstance().signin(getContext(), email, password, PropertyManager.getInstance().getRegistrationToken(), new NetworkManager.OnResultListener<MyResultUser>() {
                     @Override
                     public void onSuccess(Request request, MyResultUser result) {
                         if(result.code == 1){
@@ -155,7 +155,7 @@ public class LoginFragment extends Fragment {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     AccessToken token = AccessToken.getCurrentAccessToken();
-                    NetworkManager.getInstance().facebookSignIn(getContext(), token.getToken(), "", new NetworkManager.OnResultListener<MyResultUser>() {
+                    NetworkManager.getInstance().facebookSignIn(getContext(), token.getToken(),PropertyManager.getInstance().getRegistrationToken(), new NetworkManager.OnResultListener<MyResultUser>() {
                         @Override
                         public void onSuccess(Request request, MyResultUser result) {
 
